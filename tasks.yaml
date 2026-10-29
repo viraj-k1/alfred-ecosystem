@@ -1,0 +1,113 @@
+# =============================================================================
+# tasks.yaml — YAML-Driven Task Definitions
+# =============================================================================
+# Each task maps to a CrewAI Task. The {placeholders} are filled at runtime
+# from Python code before the task is instantiated.
+# =============================================================================
+
+route_and_respond:
+  description: >
+    A Telegram user has sent the following message: "{user_message}"
+
+    Relevant user preferences retrieved from memory:
+    {user_preferences}
+
+    Your job:
+    1. Analyse the intent of the message.
+    2. If the message contains a personal preference or fact (e.g., "I prefer
+       remote roles", "I'm studying at XYZ university"), call the
+       save_preference tool to persist it to Mike BEFORE doing anything else.
+    3. If the request is about career / internship / job search → delegate
+       to Bob.
+    4. If the request is about daily briefing, monitoring, or scheduling →
+       delegate to Edna.
+    5. For all other requests, handle them yourself.
+    6. Return a single, final, well-formatted reply suitable for Telegram
+       (use Markdown where helpful, keep it concise).
+  expected_output: >
+    A polished, final response string to send back to the Telegram user.
+    Must incorporate any relevant memory context. Must not exceed 3000
+    characters.
+  agent: alfred
+
+save_preference:
+  description: >
+    The user has stated a preference or personal fact: "{preference_text}"
+
+    Save this to the Mem0 memory layer so all agents can use it in future
+    interactions. Confirm the save was successful.
+  expected_output: >
+    A short confirmation string: "✅ Preference saved to memory."
+  agent: alfred
+
+daily_briefing:
+  description: >
+    Compile the daily briefing for the user.
+
+    User preferences from memory:
+    {user_preferences}
+
+    Bob's latest job-search summary (if available):
+    {bob_summary}
+
+    The briefing must include:
+    - A concise agenda section (placeholder until calendar MCP is integrated)
+    - Bob's internship search progress and top 3 leads
+    - Any flagged items or alerts
+    - A motivational closing line
+
+    Format as clean Telegram Markdown.
+  expected_output: >
+    A fully formatted daily briefing string ready to send via Telegram.
+  agent: edna
+
+job_search:
+  description: >
+    Execute a targeted Summer 2027 internship search.
+
+    User profile & preferences from memory:
+    {user_preferences}
+
+    Additional context from the user's message: "{user_message}"
+
+    Search criteria:
+    - Target roles: analytics, business oversight, finance, pre-sales,
+      consulting
+    - Major: Business Analytics & AI
+    - Timeline: Summer 2027 internship cycle
+    - EXCLUDE: marketing, door-to-door, 100% commission sales
+
+    For each opportunity found, provide:
+    1. Company name & role title
+    2. Location (remote/hybrid/on-site)
+    3. Key required skills
+    4. Application deadline (if known)
+    5. A brief culture note
+    6. Direct application link (if available via web search)
+
+    Use the web_search_placeholder tool if you need to look up live listings.
+    Always cross-check against user preferences from Mike before including
+    a result.
+  expected_output: >
+    A structured list of 5–10 internship opportunities, formatted in
+    Telegram-friendly Markdown with clear sections per opportunity.
+    End with a summary of the search strategy used.
+  agent: bob
+
+monitor_bob_output:
+  description: >
+    Review Bob's latest output:
+    {bob_output}
+
+    Check that:
+    1. No excluded role types (marketing, door-to-door, commission-only) are
+       present.
+    2. All roles align with the user's stated preferences from memory:
+       {user_preferences}
+    3. The formatting is clean and Telegram-ready.
+
+    Flag any issues and return an approved (or corrected) version.
+  expected_output: >
+    Either "✅ Bob's output approved." followed by the verified output,
+    OR a corrected version of Bob's output with flagged issues annotated.
+  agent: edna

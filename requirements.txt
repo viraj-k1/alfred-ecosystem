@@ -1,0 +1,30 @@
+# =============================================================================
+# Alfred Multi-Agent Ecosystem — Python Dependencies
+# =============================================================================
+# Minimum-version floors are set; pip resolves transitive dependencies.
+# This avoids conflicts between crewai, python-telegram-bot, and chromadb.
+# Run: pip install -r requirements.txt
+# =============================================================================
+
+# --- Telegram Bot (v20+ async, uses httpx ~0.27) ---
+python-telegram-bot[job-queue]==21.6
+
+# --- CrewAI Orchestration ---
+crewai>=1.9.3
+
+# --- LLM Routing & Fallbacks ---
+litellm>=1.53.1
+
+# --- Memory Layer (local Mem0, no cloud key needed) ---
+mem0ai>=2.0.0
+
+# --- Environment & Config ---
+python-dotenv>=1.0.0
+pyyaml>=6.0
+
+# --- Web Scraping Placeholder ---
+playwright>=1.40.0
+
+# --- Utilities ---
+tenacity>=8.2
+rich>=13.0
